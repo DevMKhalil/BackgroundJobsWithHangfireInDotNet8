@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackgroundJobsWithHangfireInDotNet8.Controllers
@@ -21,6 +22,12 @@ namespace BackgroundJobsWithHangfireInDotNet8.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
+            BackgroundJob.Enqueue(() => SendMessage("mKhalil@elm.sa"));
+
+            BackgroundJob.Schedule(() => SendMessage("MohamedKhalil@ntgClarity.com"),TimeSpan.FromSeconds(30));
+
+            RecurringJob.AddOrUpdate(() => SendMessage("dev.MohammedKhalil@gmail.com"), Cron.Minutely);
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -28,6 +35,12 @@ namespace BackgroundJobsWithHangfireInDotNet8.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task SendMessage(string email)
+        {
+            Console.WriteLine($"Email Sent: {email} Date: {DateTime.Now}");
         }
     }
 }
