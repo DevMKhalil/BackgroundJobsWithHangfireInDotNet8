@@ -1,0 +1,6 @@
+@BackgroundJobsWithHangfireInDotNet8_HostAddress = http://localhost:5058
+
+GET {{BackgroundJobsWithHangfireInDotNet8_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
