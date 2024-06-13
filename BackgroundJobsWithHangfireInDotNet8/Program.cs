@@ -3,7 +3,14 @@ using Hangfire;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHangfire(x =>
+{
+    x.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+    x.UseRecommendedSerializerSettings();
+    x.UseSimpleAssemblyNameTypeSerializer();
+    x.UseColouredConsoleLogProvider();
+}
+);
 builder.Services.AddHangfireServer();
 
 builder.Services.AddControllers();
@@ -25,7 +32,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard("/dashboard"); 
+app.UseHangfireDashboard("/dashboard");
 
 app.MapControllers();
 
