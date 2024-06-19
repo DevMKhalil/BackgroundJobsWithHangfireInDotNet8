@@ -1,4 +1,6 @@
+using BackgroundJobsWithHangfireInDotNet8.Services;
 using Hangfire;
+using HangfireBasicAuthenticationFilter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +11,10 @@ builder.Services.AddHangfire(x =>
     x.UseRecommendedSerializerSettings();
     x.UseSimpleAssemblyNameTypeSerializer();
     x.UseColouredConsoleLogProvider();
-}
-);
+});
+
+builder.Services.AddTransient<IServiceManagement, ServiceManagement>();
+
 builder.Services.AddHangfireServer();
 
 builder.Services.AddControllers();
@@ -32,8 +36,21 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard("/dashboard");
+app.UseHangfireDashboard("/dashboard",new DashboardOptions()
+{
+    DashboardTitle = "Dashboard Home",
+    Authorization = new[]
+    {
+        new HangfireCustomBasicAuthenticationFilter()
+        {
+            Pass = "123",
+            User = "user"
+        }
+    }
+});
 
 app.MapControllers();
+
+RecurringJob.AddOrUpdate<IServiceManagement>("SyncData-recurring-job", x => x.SyncData(), "0 * * ? * *");
 
 app.Run();
